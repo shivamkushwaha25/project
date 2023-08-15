@@ -1,0 +1,133 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct Book {
+    int Book_ID;
+    char Book_Name[50];
+    char ISBN_Number[13];
+};
+
+void add() {
+    struct Book obj1;
+    printf("Enter the ID of book - ");
+    scanf("%d", &obj1.Book_ID);
+    printf("Enter the Name of book - ");
+    scanf("%s", obj1.Book_Name);
+    printf("Enter the ISBN Number of the book - ");
+    scanf("%s", obj1.ISBN_Number);
+
+    FILE *file = fopen("books.txt", "a");
+    if (file == NULL) {
+        printf("Error opening file!\n");
+        return;
+    }
+    fprintf(file, "%d %s %s\n", obj1.Book_ID, obj1.Book_Name, obj1.ISBN_Number);
+    fclose(file);
+}
+
+void delete(int id) {
+    FILE *file = fopen("books.txt", "r");
+    if (file == NULL) {
+        printf("No books available.\n");
+        return;
+    }
+
+    FILE *tempFile = fopen("temp.txt", "w");
+    struct Book obj2;
+    while (fscanf(file, "%d %s %s", &obj2.Book_ID, obj2.Book_Name, obj2.ISBN_Number) != EOF) {
+        if (obj2.Book_ID != id) {
+            fprintf(tempFile, "%d %s %s\n", obj2.Book_ID, obj2.Book_Name, obj2.ISBN_Number);
+        }
+    }
+
+    fclose(file);
+    fclose(tempFile);
+
+    remove("books.txt");
+    rename("temp.txt", "books.txt");
+}
+
+void list() {
+    FILE *file = fopen("books.txt", "r");
+    if (file == NULL) {
+        printf("No books available.\n");
+        return;
+    }
+
+    struct Book obj3;
+    while (fscanf(file, "%d %s %s", &obj3.Book_ID, obj3.Book_Name, obj3.ISBN_Number) != EOF) {
+        printf("Book ID - %d, Book Name - %s, Book ISBN Number - %s\n", obj3.Book_ID, obj3.Book_Name, obj3.ISBN_Number);
+    }
+
+    fclose(file);
+}
+
+
+
+void update(int id) {
+    FILE *file = fopen("books.txt", "r");
+    if (file == NULL) {
+        printf("No books available.\n");
+        return;
+    }
+
+    FILE *tempFile = fopen("temp.txt", "w");
+    struct Book obj4;
+    while (fscanf(file, "%d %s %s", &obj4.Book_ID, obj4.Book_Name, obj4.ISBN_Number) != EOF) {
+        if (obj4.Book_ID == id) {
+            printf("Enter new Book Name - ");
+            scanf("%s", obj4.Book_Name);
+            printf("Enter new ISBN - ");
+            scanf("%s", obj4.ISBN_Number);
+        }
+        fprintf(tempFile, "%d %s %s\n", obj4.Book_ID, obj4.Book_Name, obj4.ISBN_Number);
+    }
+
+    fclose(file);
+    fclose(tempFile);
+
+    remove("books.txt");
+    rename("temp.txt", "books.txt");
+}
+
+int main() {
+    int choice, id;
+
+    while (1) {
+        printf("\n------------Book Management System------------\n");
+        printf("1. Add a Book\n");
+        printf("2. Delete a Book\n");
+        printf("3. List of Books\n");
+        printf("4. Update a Book Detail\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                add();
+                break;
+            case 2:
+             printf("Enter Book ID to delete: ");
+                scanf("%d", &id);
+                delete(id);
+               
+                break;
+            case 3:
+               list();
+                break;
+            case 4:
+                printf("Enter Book ID to update: ");
+                scanf("%d", &id);
+                update(id);
+                break;
+            case 5:
+                exit(0);
+            default:
+                printf("Invalid choice!\n");
+        }
+    }
+
+    return 0;
+}
